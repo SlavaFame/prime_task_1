@@ -1,0 +1,194 @@
+openapi: 3.0.3
+info:
+  title: Bitrix Catalog REST API
+  description: API для работы с каталогом одежды
+  version: 1.0.0
+servers:
+  - url: http://192.168.0.105/api/v1
+    description: Основной сервер
+
+paths:
+  /catalog/categories:
+    get:
+      summary: Получение списка категорий
+      tags:
+        - Catalog
+      parameters:
+        - name: parentId
+          in: query
+          description: ID родительской категории (для получения вложенных)
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Успешный ответ
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Category'
+
+  /catalog/categories/{id}/products:
+    get:
+      summary: Получение товаров категории
+      tags:
+        - Catalog
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID категории
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+            maximum: 100
+      responses:
+        '200':
+          description: Успешный ответ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductsResponse'
+
+  /catalog/products/{id}:
+    get:
+      summary: Получение детальной информации о товаре
+      tags:
+        - Catalog
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Успешный ответ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductDetail'
+
+components:
+  schemas:
+    Category:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 123
+        name:
+          type: string
+          example: "Верхняя одежда"
+        detailPage:
+          type: string
+          format: uri
+          example: "/catalog/upper_clothing/"
+        picture:
+          type: string
+          format: uri
+          example: "/upload/categories/upper.jpg"
+        children:
+          type: array
+          items:
+            $ref: '#/components/schemas/Category'
+
+    ProductShort:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        detailPage:
+          type: string
+          format: uri
+        picture:
+          type: string
+          format: uri
+        priceFrom:
+          type: number
+          format: float
+
+    ProductsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductShort'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    ProductDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        detailPage:
+          type: string
+          format: uri
+        gallery:
+          type: array
+          items:
+            type: string
+            format: uri
+        characteristics:
+          $ref: '#/components/schemas/Characteristics'
+        offers:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductOffer'
+
+    Characteristics:
+      type: object
+      properties:
+        brand:
+          type: string
+        manufacturer:
+          type: string
+        material:
+          type: string
+
+    ProductOffer:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        article:
+          type: string
+        color:
+          type: string
+        size:
+          type: string
+
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+        limit:
+          type: integer
+        total:
+          type: integer

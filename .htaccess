@@ -1,0 +1,36 @@
+Options -Indexes 
+ErrorDocument 404 /404.php
+
+<IfModule mod_rewrite.c>
+  Options +FollowSymLinks
+RewriteEngine On
+
+# API routing
+RewriteCond %{REQUEST_URI} ^/api/v1/
+RewriteRule ^api/v1/(.*)$ /api_handler.php [L,QSA]
+
+# Остальные правила Bitrix оставьте как есть
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !/bitrix/urlrewrite.php$
+RewriteRule ^(.*)$ /bitrix/urlrewrite.php [L]
+
+</IfModule>
+
+
+<IfModule mod_dir.c>
+  DirectoryIndex index.php index.html
+</IfModule>
+
+<IfModule mod_negotiation.c>
+  Options -MultiViews
+</IfModule>
+
+<IfModule mod_expires.c>
+  ExpiresActive on
+  ExpiresByType image/jpeg "access plus 3 day"
+  ExpiresByType image/gif "access plus 3 day"
+  ExpiresByType image/png "access plus 3 day"
+  ExpiresByType text/css "access plus 3 day"
+  ExpiresByType application/javascript "access plus 3 day"  
+</IfModule>
